@@ -1,0 +1,43 @@
+version: "3"
+
+services:
+  my_db:
+    image: postgres
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: test_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    container_name: test_db_cont
+    ports:
+      - "15432:5432"
+    volumes:
+      - db_vol:/var/lib/postgresql/data
+
+  my_rabbit:
+    build:
+      context: ./docker
+      dockerfile: ./dockerfile-rabbit.df
+    image: rabbit-custom
+    container_name: rabbit
+    hostname: test
+    env_file:
+      - docker/config/rabbitmq.conf
+    ports:
+      - "15672:5672"
+      - "15673:15672"
+    hostname: rabbit
+
+  # celery_worker:
+  #   build:
+  #     context: ./.
+  #     dockerfile: ./Dockerfile
+  #   command: celery -A adder_task_app worker -l info
+  #   container_name: celery_worker
+  #   depends_on:
+  #     - my_db
+  #     - my_rabbit
+  #   hostname: celery_worker
+  #   image: worker
+volumes:
+  db_vol:
